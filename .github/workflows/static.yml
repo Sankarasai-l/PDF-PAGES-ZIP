@@ -1,21 +1,15 @@
-name: Deploy Static HTML to GitHub Pages
+name: Deploy Static Site to GitHub Pages
 
 on:
-  # Trigger on push to the main branch
   push:
     branches:
       - main
-
-  # Allows you to manually trigger the workflow
   workflow_dispatch:
 
-# Permissions for GitHub token
 permissions:
   contents: read
   pages: write
-  id-token: write
 
-# Allow only one concurrent deployment
 concurrency:
   group: "pages"
   cancel-in-progress: false
@@ -23,19 +17,18 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
     steps:
-      # 1. Checkout repository code
+      # Step 1: Checkout repository code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Upload the files to GitHub Pages
+      # Step 2: Upload content to GitHub Pages
       - name: Upload to GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './'  # Path to your HTML files (if they are in the root)
+          path: './'  # Path to static content (for simple HTML, this is the root)
 
-      # 3. Deploy the files to GitHub Pages
+      # Step 3: Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
