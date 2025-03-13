@@ -26,7 +26,7 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f9f9f9; /* Light gray background */
+            background-color: #f9fdff; /* Light gray background */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -236,6 +236,29 @@
             font-weight: 500;
         }
 
+/* Heart Loader */
+.heart-loader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 50px;  /* Make the heart symbol large */
+    animation: heartbeat 1s infinite;  /* Apply heartbeat animation */
+}
+
+/* Keyframes for heartbeat effect (lub-dub) */
+@keyframes heartbeat {
+    0% {
+        transform: scale(1);  /* Normal size */
+    }
+    50% {
+        transform: scale(1.3);  /* Enlarged heart (lub) */
+    }
+    100% {
+        transform: scale(1);  /* Back to normal size (dub) */
+    }
+}
+
+
     </style>
 </head>
 <body>
@@ -243,7 +266,13 @@
     <!-- Company Logo -->
     <img id="company-logo" src="http://digiforms.imop.co.in/static/Images/imop-bg.png" alt="Company Logo">
     <br><br>
-    <h1>PDF Splitter to ZIP</h1>
+    <h1>PDF Split and ZIP</h1>
+   
+    <!-- Heartbeat Loader -->
+    <div id="heart-loader" class="heart-loader" style="display: none;">
+        ❤️
+    </div>
+
 
     <!-- Step Indicator (Horizontal Progress Bar) -->
     <div class="steps-container">
@@ -342,7 +371,7 @@
             // Step 1 - Upload: Update the step
             steps[0].classList.remove('active-step');
             steps[1].classList.add('active-step');
-
+            document.getElementById('heart-loader').style.display = 'inline-block';
             // Show loader and start processing
             loader.style.display = 'inline-block';
             processBtn.style.display = 'none';
@@ -381,6 +410,7 @@
                         downloadBtn.style.display = 'block';
                         renameInput.style.display = 'block';
                         loader.style.display = 'none';
+                        document.getElementById('heart-loader').style.display = 'none';
                         statusDiv.textContent = 'Processing complete. Ready to download.';
                     }, 2000); // 2-second delay
 
