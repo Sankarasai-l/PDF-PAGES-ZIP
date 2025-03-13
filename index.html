@@ -29,9 +29,10 @@
             background-color: #f9f9f9; /* Light gray background */
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
+            justify-content: flex-start; /* Align to top */
             height: 100vh;
+            padding-top: 30px; /* Space from the top */
             overflow: hidden;
             position: relative;
         }
@@ -49,7 +50,7 @@
             margin-bottom: 20px;
         }
 
-        /* Step Indicator (Horizontal Progress Bar) */
+        /* Step Indicator (Horizontal Nav Tab Style) */
         .steps-container {
             display: flex;
             justify-content: space-between;
@@ -58,21 +59,39 @@
             margin-bottom: 30px;
             font-size: 16px;
             color: #00796b;
+            border: 1px solid #00796b;
+            border-radius: 20px;
+            background-color: #e0f7fa; /* Background color of the nav tab */
         }
 
         .step {
             padding: 12px 20px;
-            background-color: #e0f7fa;
+            background-color: transparent;
+            border: none;
             border-radius: 20px;
             color: #00796b;
-            transition: 0.3s;
+            transition: background-color 0.3s ease, color 0.3s ease;
             font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            flex: 1;
         }
 
-        .active-step {
+ 
+        .step.active-step {
+            background-color: #00796b; /* Active tab color */
+            color: white;
+            font-weight: 700;
+        }
+
+        .step i {
+            margin-right: 8px; /* Space between icon and text */
+        }
+
+        /* .active-step {
             background-color: #00796b;
             color: white;
-        }
+        } */
 
         /* Drag-and-Drop Upload Area */
         .drop-area {
@@ -222,7 +241,7 @@
 <body>
 
     <!-- Company Logo -->
-    <img id="company-logo" src="./imop-bg (1).png" alt="Company Logo">
+    <img id="company-logo" src="http://digiforms.imop.co.in/static/Images/imop-bg.png" alt="Company Logo">
     <br><br>
     <h1>PDF Splitter to ZIP</h1>
 
@@ -272,7 +291,6 @@
     <div class="footer">
         <p>Built to perfection by the <strong>IMOP IT Team</strong></p>
         <br>
-        <!-- <p>"Efficiency is doing things right; effectiveness is doing the right things." - Peter Drucker</p> -->
     </div>
 
     <script>
@@ -318,93 +336,95 @@
             }
         });
 
-        
         async function splitPDFAndDownloadZIP() {
-    if (!file) return;
+            if (!file) return;
 
-    // Step 1 - Upload: Update the step
-    steps[0].classList.remove('active-step');
-    steps[1].classList.add('active-step');
+            // Step 1 - Upload: Update the step
+            steps[0].classList.remove('active-step');
+            steps[1].classList.add('active-step');
 
-    // Show loader and start processing
-    loader.style.display = 'inline-block';
-    processBtn.style.display = 'none';
-    statusDiv.textContent = 'Processing PDF...';
+            // Show loader and start processing
+            loader.style.display = 'inline-block';
+            processBtn.style.display = 'none';
+            statusDiv.textContent = 'Processing PDF...';
 
-    const reader = new FileReader();
-    reader.onload = async function () {
-        const pdfBytes = reader.result;
+            const reader = new FileReader();
+            reader.onload = async function () {
+                const pdfBytes = reader.result;
 
-        try {
-            // Load the uploaded PDF with pdf-lib
-            const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
-            const totalPages = pdfDoc.getPageCount();
+                try {
+                    // Load the uploaded PDF with pdf-lib
+                    const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+                    const totalPages = pdfDoc.getPageCount();
 
-            // Create a new JSZip instance to hold the PDFs
-            const zip = new JSZip();
+                    // Create a new JSZip instance to hold the PDFs
+                    const zip = new JSZip();
 
-            // Loop through each page of the PDF and save it as a new PDF
-            for (let i = 0; i < totalPages; i++) {
-                const newPdfDoc = await PDFLib.PDFDocument.create();
-                const [copiedPage] = await newPdfDoc.copyPages(pdfDoc, [i]);
-                newPdfDoc.addPage(copiedPage);
+                    // Loop through each page of the PDF and save it as a new PDF
+                    for (let i = 0; i < totalPages; i++) {
+                        const newPdfDoc = await PDFLib.PDFDocument.create();
+                        const [copiedPage] = await newPdfDoc.copyPages(pdfDoc, [i]);
+                        newPdfDoc.addPage(copiedPage);
 
-                // Serialize the new PDF to bytes
-                const newPdfBytes = await newPdfDoc.save();
+                        // Serialize the new PDF to bytes
+                        const newPdfBytes = await newPdfDoc.save();
 
-                // Add the PDF page to the ZIP file
-                zip.file(`page_${i + 1}.pdf`, newPdfBytes);
-            }
+                        // Add the PDF page to the ZIP file
+                        zip.file(`page_${i + 1}.pdf`, newPdfBytes);
+                    }
 
-            // Step 2 - Processing Complete: Keep Step 2 active
-            // Don't transition yet, just show that it's processing
+                    // Step 2 - Processing Complete: Keep Step 2 active
+                    setTimeout(() => {
+                        // Step 3 - Enable Download: Show download button
+                        steps[1].classList.remove('active-step');
+                        steps[2].classList.add('active-step');
+                        downloadBtn.style.display = 'block';
+                        renameInput.style.display = 'block';
+                        loader.style.display = 'none';
+                        statusDiv.textContent = 'Processing complete. Ready to download.';
+                    }, 2000); // 2-second delay
 
-            // Step 3 - Simulate 2-second delay before showing the download step
-            setTimeout(() => {
-                // Step 3 - Enable Download: Show download button
-                steps[1].classList.remove('active-step'); // Remove active step from "Processing"
-                steps[2].classList.add('active-step'); // Add active step to "Download"
-                downloadBtn.style.display = 'block';
-                renameInput.style.display = 'block';
-                loader.style.display = 'none';
-                statusDiv.textContent = 'Processing complete. Ready to download.';
-            }, 2000);  // 2-second delay before transitioning to Step 3
+                    // Handle download button click
+                    downloadBtn.addEventListener('click', function () {
+                        // Prevent multiple clicks by disabling the button
+                        downloadBtn.disabled = true;
+                        buttonLoader.style.display = 'inline-block'; // Show loader
 
-            // Handle download button click
-            downloadBtn.addEventListener('click', function () {
-                buttonLoader.style.display = 'inline-block';
+                        // Get the custom ZIP file name or default name
+                        const zipFileName = zipNameInput.value.trim() || file.name.replace('.pdf', '') || 'split_pdf';
 
-                // Get the custom ZIP file name or default name
-                const zipFileName = zipNameInput.value.trim() || file.name.replace('.pdf', '') || 'split_pdf';
+                        zip.generateAsync({ type: 'blob' })
+                            .then((content) => {
+                                const link = document.createElement('a');
+                                link.href = URL.createObjectURL(content);
+                                link.download = `${zipFileName}.zip`;
+                                link.click();
 
-                zip.generateAsync({ type: 'blob' })
-                    .then((content) => {
-                        const link = document.createElement('a');
-                        link.href = URL.createObjectURL(content);
-                        link.download = `${zipFileName}.zip`;
-                        link.click();
+                                // Hide loader and re-enable button
+                                buttonLoader.style.display = 'none';
+                                statusDiv.textContent = 'Download complete!';
 
-                        // Hide the loader after download
-                        buttonLoader.style.display = 'none';
-                        statusDiv.textContent = 'Download complete!';
-
-                        // Optionally, ask to restart or refresh the page
-                        setTimeout(() => {
-                            alert('Click OK to start again.');
-                            location.reload();
-                        }, 1000);
+                                // Optionally, restart or refresh the page
+                                setTimeout(() => {
+                                    alert('Download completed! Click OK to start again.');
+                                    location.reload();
+                                }, 1000);
+                            })
+                            .finally(() => {
+                                downloadBtn.disabled = false; // Re-enable button after download
+                            });
                     });
-            });
-        } catch (error) {
-            statusDiv.textContent = 'Error processing the PDF.';
-            console.error(error);
-        }
-    };
-    reader.readAsArrayBuffer(file);
-}
 
+                } catch (error) {
+                    statusDiv.textContent = 'Error processing PDF. Please try again.';
+                }
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
 
         processBtn.addEventListener('click', splitPDFAndDownloadZIP);
     </script>
+
 </body>
 </html>
