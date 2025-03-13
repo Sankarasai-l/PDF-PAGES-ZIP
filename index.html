@@ -26,12 +26,13 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f9f9f9; /* Light gray background */
+            background-color: #f9fdff; /* Light gray background */
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
+            justify-content: flex-start; /* Align to top */
             height: 100vh;
+            padding-top: 30px; /* Space from the top */
             overflow: hidden;
             position: relative;
         }
@@ -43,45 +44,13 @@
             font-weight: 600;
         }
 
-        /* Heart Loader Container */
-        .heart-loader-container {
-            display: flex;
-            flex-direction: column;  /* Stack heart loader and text vertically */
-            justify-content: center;
-            align-items: center;
-            font-size: 50px;
-            text-align: center;
+        /* Company Logo */
+        #company-logo {
+            width: 150px;
             margin-bottom: 20px;
         }
 
-        /* Heart Loader */
-        .heart-loader {
-            font-size: 50px;  /* Large heart symbol */
-            animation: heartbeat 1s infinite;  /* Apply heartbeat animation */
-            margin-bottom: 10px;  /* Space between heart and processing text */
-        }
-
-        /* Processing Text */
-        #processing-text {
-            font-size: 20px;
-            color: #00796b;
-            font-weight: 500;
-        }
-
-        /* Keyframes for heartbeat effect (lub-dub) */
-        @keyframes heartbeat {
-            0% {
-                transform: scale(1);  /* Normal size */
-            }
-            50% {
-                transform: scale(1.3);  /* Enlarged heart (lub) */
-            }
-            100% {
-                transform: scale(1);  /* Back to normal size (dub) */
-            }
-        }
-
-        /* Step Indicator (Horizontal Progress Bar) */
+        /* Step Indicator (Horizontal Nav Tab Style) */
         .steps-container {
             display: flex;
             justify-content: space-between;
@@ -90,21 +59,39 @@
             margin-bottom: 30px;
             font-size: 16px;
             color: #00796b;
+            border: 1px solid #00796b;
+            border-radius: 20px;
+            background-color: #e0f7fa; /* Background color of the nav tab */
         }
 
         .step {
             padding: 12px 20px;
-            background-color: #e0f7fa;
+            background-color: transparent;
+            border: none;
             border-radius: 20px;
             color: #00796b;
-            transition: 0.3s;
+            transition: background-color 0.3s ease, color 0.3s ease;
             font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            flex: 1;
         }
 
-        .active-step {
+ 
+        .step.active-step {
+            background-color: #00796b; /* Active tab color */
+            color: white;
+            font-weight: 700;
+        }
+
+        .step i {
+            margin-right: 8px; /* Space between icon and text */
+        }
+
+        /* .active-step {
             background-color: #00796b;
             color: white;
-        }
+        } */
 
         /* Drag-and-Drop Upload Area */
         .drop-area {
@@ -126,6 +113,11 @@
         .drop-area:hover {
             background-color: #b2dfdb;
             border-color: #004d40;
+        }
+
+        .drop-area i {
+            font-size: 40px;
+            margin-bottom: 15px;
         }
 
         /* Hidden File Input */
@@ -181,6 +173,44 @@
             font-weight: 500;
         }
 
+        /* Rename Input */
+        #rename-input {
+            margin-top: 20px;
+            display: none;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        #rename-input input {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #00796b;
+            border-radius: 8px;
+            width: 100%;
+            color: #333;
+        }
+
+        /* Download Button */
+        #download-btn {
+            display: none;
+            background-color: #00796b;
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        #download-btn:hover {
+            background-color: #004d40;
+        }
+
         /* Footer */
         .footer {
             position: absolute;
@@ -205,29 +235,40 @@
             color: #00796b;
             font-weight: 500;
         }
-        #company-logo {
-            width: 150px;
-            margin-bottom: 20px;
-        }
+
+/* Heart Loader */
+.heart-loader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 50px;  /* Make the heart symbol large */
+    animation: heartbeat 1s infinite;  /* Apply heartbeat animation */
+}
+
+/* Keyframes for heartbeat effect (lub-dub) */
+@keyframes heartbeat {
+    0% {
+        transform: scale(1);  /* Normal size */
+    }
+    50% {
+        transform: scale(1.3);  /* Enlarged heart (lub) */
+    }
+    100% {
+        transform: scale(1);  /* Back to normal size (dub) */
+    }
+}
+
 
     </style>
 </head>
 <body>
 
     <!-- Company Logo -->
-    <img id="company-logo" src="./imop-bg (1).png" alt="Company Logo">
+    <img id="company-logo" src="http://digiforms.imop.co.in/static/Images/imop-bg.png" alt="Company Logo">
     <br><br>
-    <h1>PDF Splitter to ZIP</h1>
+    <h1>PDF Split and ZIP</h1>
+   
 
-    <!-- Heart Loader and Processing Text -->
-    <div id="heart-loader-container" class="heart-loader-container" style="display: none;">
-        <div id="heart-loader" class="heart-loader">
-            ❤️
-        </div>
-        <div id="processing-text">
-            Processing PDF...
-        </div>
-    </div>
 
     <!-- Step Indicator (Horizontal Progress Bar) -->
     <div class="steps-container">
@@ -259,18 +300,27 @@
         <input type="text" id="zip-name" placeholder="Enter ZIP file name" autocomplete="off" />
     </div>
 
+    <!-- Loader -->
+    <div class="loader" id="loader"></div>
+        <!-- Heartbeat Loader -->
+        <div id="heart-loader" class="heart-loader" style="display: none;">
+            ❤️
+        </div>
+    
+
     <!-- Status Message -->
     <div id="status"></div>
 
     <!-- Download Button -->
-    <button id="download-btn" style="display: none;">
+    <button id="download-btn">
         <i class="fas fa-download"></i> Download ZIP
         <div class="button-loader" id="button-loader"></div> <!-- Button loader -->
     </button>
 
-    <!-- Footer -->
+    <!-- Footer with Love and Professional Quotation -->
     <div class="footer">
         <p>Built to perfection by the <strong>IMOP IT Team</strong></p>
+        <br>
     </div>
 
     <script>
@@ -322,9 +372,9 @@
             // Step 1 - Upload: Update the step
             steps[0].classList.remove('active-step');
             steps[1].classList.add('active-step');
-
-            // Show heart loader and start processing
-            document.getElementById('heart-loader-container').style.display = 'block'; // Show loader
+            document.getElementById('heart-loader').style.display = 'inline-block';
+            // Show loader and start processing
+            loader.style.display = 'inline-block';
             processBtn.style.display = 'none';
             statusDiv.textContent = 'Processing PDF...';
 
@@ -354,36 +404,56 @@
                     }
 
                     // Step 2 - Processing Complete: Keep Step 2 active
-                    // Don't transition yet, just show that it's processing
-
-                    // Step 3 - Simulate 2-second delay before showing the download step
                     setTimeout(() => {
                         // Step 3 - Enable Download: Show download button
                         steps[1].classList.remove('active-step');
                         steps[2].classList.add('active-step');
                         downloadBtn.style.display = 'block';
                         renameInput.style.display = 'block';
-                        document.getElementById('heart-loader-container').style.display = 'none'; // Hide loader
+                        loader.style.display = 'none';
+                        document.getElementById('heart-loader').style.display = 'none';
                         statusDiv.textContent = 'Processing complete. Ready to download.';
-                    }, 2000);  // 2-second delay before transitioning to Step 3
+                    }, 2000); // 2-second delay
 
-                    // Handle file name input
-                    document.getElementById('download-btn').addEventListener('click', () => {
-                        const zipName = zipNameInput.value || 'output';
-                        zip.generateAsync({ type: 'blob' }).then(function (content) {
-                            saveAs(content, `${zipName}.zip`);
-                        });
+                    // Handle download button click
+                    downloadBtn.addEventListener('click', function () {
+                        // Prevent multiple clicks by disabling the button
+                        downloadBtn.disabled = true;
+                        buttonLoader.style.display = 'inline-block'; // Show loader
+
+                        // Get the custom ZIP file name or default name
+                        const zipFileName = zipNameInput.value.trim() || file.name.replace('.pdf', '') || 'split_pdf';
+
+                        zip.generateAsync({ type: 'blob' })
+                            .then((content) => {
+                                const link = document.createElement('a');
+                                link.href = URL.createObjectURL(content);
+                                link.download = `${zipFileName}.zip`;
+                                link.click();
+
+                                // Hide loader and re-enable button
+                                buttonLoader.style.display = 'none';
+                                statusDiv.textContent = 'Download complete!';
+
+                                // Optionally, restart or refresh the page
+                                setTimeout(() => {
+                                    alert('Download completed! Click OK to start again.');
+                                    location.reload();
+                                }, 1000);
+                            })
+                            .finally(() => {
+                                downloadBtn.disabled = false; // Re-enable button after download
+                            });
                     });
 
                 } catch (error) {
-                    console.error('Error processing PDF:', error);
+                    statusDiv.textContent = 'Error processing PDF. Please try again.';
                 }
             };
 
             reader.readAsArrayBuffer(file);
         }
 
-        // Button click event
         processBtn.addEventListener('click', splitPDFAndDownloadZIP);
     </script>
 
